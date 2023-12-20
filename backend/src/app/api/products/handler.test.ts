@@ -12,18 +12,20 @@ describe("getProducts", () => {
   it("should return products with default sorting when no parameters are provided", async () => {
     const mockFind = jest.fn().mockReturnValue({
       sort: jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue([
-          {
-            gtin: "1234567890132",
-            brandName: "Aurora",
-            stock: 150,
-            category: "shirt",
-            color: "gray",
-            name: "Aurora Gray Shirt",
-            image: "shirt.png",
-            price: 65,
-          },
-        ]),
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue([
+            {
+              gtin: "1234567890132",
+              brandName: "Aurora",
+              stock: 150,
+              category: "shirt",
+              color: "gray",
+              name: "Aurora Gray Shirt",
+              image: "shirt.png",
+              price: 65,
+            },
+          ]),
+        }),
       }),
     });
     (ProductSchema.find as jest.Mock).mockImplementationOnce(mockFind);
@@ -35,18 +37,20 @@ describe("getProducts", () => {
   it("should return products with specified sorting and filtering", async () => {
     const mockFind = jest.fn().mockReturnValue({
       sort: jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue([
-          {
-            gtin: "1234567890132",
-            brandName: "Aurora",
-            stock: 150,
-            category: "shirt",
-            color: "gray",
-            name: "Aurora Gray Shirt",
-            image: "shirt.png",
-            price: 65,
-          },
-        ]),
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue([
+            {
+              gtin: "1234567890132",
+              brandName: "Aurora",
+              stock: 150,
+              category: "shirt",
+              color: "gray",
+              name: "Aurora Gray Shirt",
+              image: "shirt.png",
+              price: 65,
+            },
+          ]),
+        }),
       }),
     });
 
@@ -72,9 +76,15 @@ describe("getSearchableProperties", () => {
   });
 
   it("should handle internal server error", async () => {
-    (ProductSchema.distinct as jest.Mock).mockRejectedValueOnce(
-      new Error("Internal Server Error")
-    );
+    (ProductSchema.distinct as jest.Mock).mockReturnValue({
+      lean: jest
+        .fn()
+        .mockReturnValue({
+          exec: jest
+            .fn()
+            .mockRejectedValueOnce(new Error("Internal Server Error")),
+        }),
+    });
     const result = await getSearchableProperties();
 
     expect(result.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -87,13 +97,16 @@ describe("getSearchableProperties", () => {
     };
     (ProductSchema.distinct as jest.Mock).mockImplementation(
       (field: string) => {
-        return field === "category"
+        const res = field === "category"
           ? data.categories
           : field === "brandName"
           ? data.brands
           : undefined;
+
+          return {lean: () => ({exec: () => res}) }
       }
     );
+    
     // first call
     await getSearchableProperties();
     expect(ProductSchema.distinct).toHaveBeenCalledTimes(2);

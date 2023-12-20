@@ -1,0 +1,7 @@
+<div>
+  <img [src]="'/assets/productImages/'+product.category+'.png'" [alt]="product.name" [title]="product.name" />
+  <h3>{{product.name}}</h3>
+  <p>stock: {{product.stock}}</p>
+  <p class="price">Price: {{product.price}}</p>
+  <div class="color" [style]="'background:' + product.color"></div>
+</div>

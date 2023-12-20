@@ -1,0 +1,50 @@
+<section *ngIf="filterValues">
+  <form [formGroup]="filterForm">
+    <!-- Dropdown for Categories -->
+    <div>
+      <label for="categoryDropdown">Select a Category:</label>
+      <select
+        id="categoryDropdown"
+        formControlName="selectedCategory"
+        (ngModelChange)="updateResult()"
+      >
+        <option [ngValue]="undefined">All Categories</option>
+        <option
+          *ngFor="let category of filterValues.categories"
+          [value]="category"
+        >
+          {{ category }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Dropdown for Brands -->
+    <div>
+      <label for="brandDropdown">Select a Brand:</label>
+      <select
+        id="brandDropdown"
+        formControlName="selectedBrand"
+        (ngModelChange)="updateResult()"
+      >
+        <option [ngValue]="undefined">All Brands</option>
+        <option *ngFor="let brand of filterValues.brands" [value]="brand">
+          {{ brand }}
+        </option>
+      </select>
+    </div>
+    <div>
+      <label for="sortDropdown">Sort:</label>
+      <select
+        id="sortDropdown"
+        formControlName="sort"
+        (ngModelChange)="updateResult()"
+      >
+        <option ngValue="price-asc">Price low to high</option>
+        <option ngValue="price-desc">Price high to low</option>
+      </select>
+    </div>
+  </form>
+</section>
+<div *ngIf="!filterValues">
+  <p>Loading filter values...</p>
+</div>

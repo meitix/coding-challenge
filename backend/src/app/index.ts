@@ -7,6 +7,7 @@ import Config from "./config";
 import { appRouter } from "./api";
 
 const app = express();
+app.use(cors());
 
 const connectDatabases = async () => {
   await DBConnector.connectMongo(Config.MONGO_URL + Config.FASHION_CLOUD_DB);
@@ -27,14 +28,10 @@ const listenPort = (PORT) => {
   );
 };
 
-const enableCors = (domains: string) => {
-  app.use(cors());
-};
 async function start() {
   await connectDatabases();
   await addBodyParser();
   initializeRouter(appRouter);
-  enableCors("*");
   await listenPort(Config.SERVICE_PORT);
 }
 

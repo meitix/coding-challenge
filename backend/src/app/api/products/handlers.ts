@@ -46,7 +46,7 @@ export const getProducts: RequestHandler = async (args?: Params) => {
 
   try {
     const products = await ProductSchema.find(filter)
-      .sort({ [order.property]: order.dir })
+      .sort({ [order.property]: order.dir }).lean()
       .exec();
     return new HandlerResult(StatusCodes.OK, products);
   } catch (e) {
@@ -69,8 +69,8 @@ let searchableValuesBuffer;
 export const getSearchableProperties: RequestHandler = async () => {
   try {
     if (!searchableValuesBuffer) {
-      const categories = await ProductSchema.distinct("category");
-      const brands = await ProductSchema.distinct("brandName");
+      const categories = await ProductSchema.distinct("category").lean().exec();
+      const brands = await ProductSchema.distinct("brandName").lean().exec();
       searchableValuesBuffer = { categories, brands };
     }
 
